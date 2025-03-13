@@ -8,7 +8,7 @@ data class RegisterRequest(
 
     @field:NotBlank
     @Size(max = 225)
-    val nama_pelanggan: String,
+    val namaPelanggan: String,
 
     @field:NotBlank
     @Size(max = 225)
@@ -20,5 +20,5 @@ data class RegisterRequest(
 
     @field:NotBlank
     @Size(max = 225)
-    val no_hp_pelanggan: String
+    val noHpPelanggan: String
 )

@@ -1,40 +1,59 @@
 package com.example.kidsnesia.service
 
 import com.example.kidsnesia.entity.Pelanggan
+import com.example.kidsnesia.model.PelangganResponse
 import com.example.kidsnesia.model.RegisterRequest
-import com.example.kidsnesia.repository.pelangganRepository
-import org.springframework.beans.factory.annotation.Autowired
+import com.example.kidsnesia.repository.PelangganRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 
 @Service
-class PelangganService @Autowired constructor(
-    private val pelangganRepository: pelangganRepository,
-    private val validationService: ValidationService // Gunakan ValidationService
+class PelangganService(
+    private val pelangganRepository: PelangganRepository,
+    private val validationService: ValidationService
 ) {
+    private val passwordEncoder = BCryptPasswordEncoder()
+    private val logger: Logger = LoggerFactory.getLogger(PelangganService::class.java)
 
-    private val passwordEncoder = BCryptPasswordEncoder() // Instansiasi BCrypt
-
-    fun register(request: RegisterRequest) {
-        validationService.validate(request) // 🔥 Gunakan ValidationService untuk validasi
-
-        if (pelangganRepository.existsByEmail(request.email)) {
+    fun register(registerData: RegisterRequest) {
+        validationService.validate(registerData)
+        // kalo email sudah dipake
+        if (pelangganRepository.existsByEmail(registerData.email)) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Email sudah dipakai")
         }
 
-        val hashedPassword = passwordEncoder.encode(request.password) // Hash password
+        // encrypt password(?)
+        val hashedPassword = passwordEncoder.encode(registerData.password)
 
+        // nyimpen data user yang register ke tabel pelanggan
         val pelanggan = Pelanggan(
-            email = request.email,
-            password = hashedPassword, // Simpan password yang sudah di-hash
-            nama_pelanggan = request.nama_pelanggan,
-            no_hp_pelanggan = request.no_hp_pelanggan,
+            email = registerData.email,
+            password = hashedPassword,
+            namaPelanggan = registerData.namaPelanggan,
+            noHpPelanggan = registerData.noHpPelanggan,
             token = null,
             tokenExpiredAt = null
         )
 
-        pelangganRepository.save(pelanggan) // Simpan ke database
+        pelangganRepository.save(pelanggan)
     }
+
+    // function response ketika akses api dengan GET
+    fun getPelangganResponse(pelanggan: Pelanggan): PelangganResponse {
+        logger.info("🔄 Membuat response untuk pelanggan: ID=${pelanggan.idPelanggan}, " +
+                "Nama=${pelanggan.namaPelanggan}, Email=${pelanggan.email}, No HP=${pelanggan.noHpPelanggan}")
+
+
+        return PelangganResponse(
+            email = pelanggan.email ?: "Tidak ada email",
+            namaPelanggan = pelanggan.namaPelanggan ?: "Tidak ada nama",
+            noHpPelanggan = pelanggan.noHpPelanggan ?: "Tidak ada nomor HP"
+        )
+    }
+
 }

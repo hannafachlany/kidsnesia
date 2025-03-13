@@ -30,6 +30,7 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql:42.7.2") // Pastikan versi driver PostgreSQL yang sesuai
+	runtimeOnly("mysql:mysql-connector-java:8.0.33")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -40,7 +41,6 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter:5.9.2") // Versi terbaru
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("com.fasterxml.jackson.core:jackson-databind")
-
 }
 
 java {

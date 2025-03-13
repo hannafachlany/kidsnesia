@@ -1,6 +1,6 @@
 package com.example.kidsnesia.model
 
-data class tokenResponse(
+data class TokenResponse(
     val token: String,
     val tokenExpiredAt: String
 )

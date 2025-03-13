@@ -1,6 +1,6 @@
 package com.example.kidsnesia.controller
 
-import com.example.kidsnesia.model.webResponse
+import com.example.kidsnesia.model.WebResponse
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -12,15 +12,15 @@ import org.springframework.web.server.ResponseStatusException
 class ErrorController {
 
     @ExceptionHandler(ConstraintViolationException::class)
-    fun handleConstraintViolation(exception: ConstraintViolationException): ResponseEntity<webResponse<String>> {
+    fun handleConstraintViolation(exception: ConstraintViolationException): ResponseEntity<WebResponse<String>> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(webResponse(data = null, errors = exception.message))
+            .body(WebResponse(message = null, status = exception.message))
     }
 
 
     @ExceptionHandler(ResponseStatusException::class)
-    fun handleResponseStatusException(exception: ResponseStatusException): ResponseEntity<webResponse<String>> {
+    fun handleResponseStatusException(exception: ResponseStatusException): ResponseEntity<WebResponse<String>> {
         return ResponseEntity.status(exception.statusCode)
-            .body(webResponse(data = null, errors = exception.reason))
+            .body(WebResponse(message = null, status = exception.reason))
     }
 }
