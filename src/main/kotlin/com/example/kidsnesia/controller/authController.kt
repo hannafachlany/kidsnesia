@@ -17,25 +17,33 @@ class AuthController(private val authService: AuthService) {
 
     private val logger: Logger = LoggerFactory.getLogger(AuthController::class.java)
 
-    // Endpoint login untuk User
-    @PostMapping(
-        path = ["/login"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<WebResponse<String>> {
+    @PostMapping("/login", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<Map<String, Any>> {
         return try {
-            authService.login(request) // Tetap panggil login agar tetap menjalankan proses autentikasi
+            val tokenResponse = authService.login(request)
             logger.info("📝 Login pelanggan: ${request.email}")
 
-            ResponseEntity.ok(WebResponse(message = "Login berhasil", status = "sukses"))
+            val response = mapOf(
+                "error" to false,
+                "message" to "success",
+                "loginResult" to mapOf(
+                    "email" to tokenResponse.email,
+                    "namaPelanggan" to tokenResponse.namaPelanggan, // Gunakan `namaPelanggan`
+                    "token" to tokenResponse.token
+                )
+            )
+
+            ResponseEntity.ok(response)
         } catch (e: ResponseStatusException) {
             logger.error("❌ Login gagal: ${e.reason}")
 
-            ResponseEntity
-                .status(e.statusCode)
-                .body(WebResponse(message = "Login gagal", status = e.reason))
+            val errorResponse = mapOf(
+                "error" to true,
+                "message" to e.reason
+            )
+
+            ResponseEntity.status(e.statusCode).body(errorResponse)
         }
     }
-
 }
+

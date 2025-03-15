@@ -1,10 +1,8 @@
 package com.example.kidsnesia.controller
 
 import com.example.kidsnesia.entity.Pelanggan
-import com.example.kidsnesia.model.NotaPembelianResponse
 import com.example.kidsnesia.model.NotaWrapper
 import com.example.kidsnesia.service.NotaPembelianService
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -15,7 +13,7 @@ class NotaPembelianController(
     @GetMapping("/{idPembelian}")
     fun getNotaPembelian(
         @PathVariable idPembelian: Long,
-        pelanggan: Pelanggan // Ambil pelanggan dari token
+        pelanggan: Pelanggan
     ): NotaWrapper {
         val notaPembelian = notaPembelianService.getNotaPembelian(pelanggan, idPembelian)
         return NotaWrapper(

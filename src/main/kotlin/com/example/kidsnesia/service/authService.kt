@@ -15,7 +15,7 @@ import java.util.*
 //logika pengolahan data untuk login
 @Service
 class AuthService @Autowired constructor(
-    private val PelangganRepository: PelangganRepository, // ✅ Gunakan `PelangganRepository`
+    private val pelangganRepository: PelangganRepository,
     private val validationService: ValidationService
 ) {
 
@@ -23,31 +23,27 @@ class AuthService @Autowired constructor(
     fun login(request: LoginRequest): TokenResponse {
         validationService.validate(request)
 
-        // 🔥 Ambil data pelanggan berdasarkan email (gunakan findByEmail di repo)
-        val pelanggan = PelangganRepository.findByEmail(request.email)
+        val pelanggan = pelangganRepository.findByEmail(request.email)
             .orElseThrow { ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email atau Password salah") }
 
-        // 🔥 Cek password dengan BCrypt
         if (BCrypt.checkpw(request.password, pelanggan.password)) {
-            // 🔥 Jika berhasil login, buat token baru & simpan ke database
             pelanggan.token = UUID.randomUUID().toString()
-            pelanggan.tokenExpiredAt = next30Days() // ✅ Pastikan tokenExpiredAt tetap `Long`
+            pelanggan.tokenExpiredAt = next30Days()
 
-            PelangganRepository.save(pelanggan) // Simpan update token pelanggan
+            pelangganRepository.save(pelanggan)
 
-            // 🔥 Return response token ke client
             return TokenResponse(
-                token = pelanggan.token!!,
-                tokenExpiredAt = pelanggan.tokenExpiredAt!!.toString() // ✅ Konversi Long ke String saat return
+                email = pelanggan.email,
+                namaPelanggan = pelanggan.namaPelanggan, // Ubah nama field menjadi `namaPelanggan`
+                token = pelanggan.token!!
             )
         } else {
-            //jika password/email salah dimasukkan
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email atau Password salah")
         }
     }
 
-    //pembuatan tokenExpiredAt
     private fun next30Days(): Long {
-        return System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30) // ✅ 30 Hari ke depan dalam `Long`
+        return System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)
     }
 }
+

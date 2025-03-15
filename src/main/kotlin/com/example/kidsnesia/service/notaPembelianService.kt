@@ -2,7 +2,7 @@ package com.example.kidsnesia.service
 
 import com.example.kidsnesia.entity.Pelanggan
 import com.example.kidsnesia.model.NotaPembelianResponse
-import com.example.kidsnesia.model.DetailPembayaranResponse
+import com.example.kidsnesia.model.EventYangDibeli
 import com.example.kidsnesia.repository.PembayaranRepository
 import com.example.kidsnesia.repository.PembelianRepository
 import com.example.kidsnesia.repository.PembelianEventRepository
@@ -18,7 +18,6 @@ class NotaPembelianService(
     private val pembelianEventRepository: PembelianEventRepository
 ) {
     fun getNotaPembelian(pelanggan: Pelanggan, idPembelian: Long): NotaPembelianResponse {
-        // Cari pembelian berdasarkan id dan pastikan milik pelanggan yang login
         val pembelian = pembelianRepository.findById(idPembelian)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Pembelian tidak ditemukan!") }
 
@@ -26,23 +25,22 @@ class NotaPembelianService(
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Anda tidak bisa mengakses nota orang lain!")
         }
 
-        // Cari pembayaran berdasarkan pembelian
         val pembayaran = pembayaranRepository.findByPembelian(pembelian)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Pembayaran tidak ditemukan!")
 
-        // Ambil daftar event dalam pembelian
         val pembelianEventList = pembelianEventRepository.findByPembelian(pembelian)
 
         if (pembelianEventList.isEmpty()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Tidak ada event dalam nota ini!")
         }
 
-        // Buat list detail event
-        val detailEvent = pembelianEventList.map { event ->
-            DetailPembayaranResponse(
+        val detailEvent = pembelianEventList.map { eventPembelian ->
+            val event = eventPembelian.event // Ambil data event dari relasi
+            EventYangDibeli(
                 namaEvent = event.namaEvent,
-                jumlahTiket = event.jumlah,
-                hargaEvent = event.hargaTotal // Harga event yang sudah dikali jumlah tiket
+                jumlahTiket = eventPembelian.jumlah,
+                hargaEvent = eventPembelian.hargaTotal,
+                jadwalEvent = "${event.jadwalEventDay}, ${event.jadwalEvent.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}"
             )
         }
 
@@ -54,7 +52,13 @@ class NotaPembelianService(
             tanggalBayar = pembayaran.tanggalBayar?.let {
                 it.toLocalDateTime().format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"))
             } ?: "Belum dibayar",
+            namaPelanggan = pelanggan.namaPelanggan,
+            email = pelanggan.email,
+            noHpPelanggan = pelanggan.noHpPelanggan, // Sesuai model
+            tanggalPembelian = pembelian.tanggalPembelian.toLocalDateTime()
+                .format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")), // Sesuai model
             detailEvent = detailEvent
         )
     }
 }
+
