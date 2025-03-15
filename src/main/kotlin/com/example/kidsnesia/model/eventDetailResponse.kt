@@ -1,7 +1,7 @@
 package com.example.kidsnesia.model
 
 data class EventDetailResponse(
-    val idEvent: Long,
+    val idEvent: Int,
     val namaEvent: String,
     val jadwalEvent: String,
     val jadwalEventDay: String,
@@ -12,7 +12,7 @@ data class EventDetailResponse(
     val hargaEvent: Int
 ) {
     fun getFullImageUrl(): String {
-        return "http://192.168.1.33:8080/$fotoEvent"
+        return "http://192.168.1.57:8080/$fotoEvent"
     }
 }
 

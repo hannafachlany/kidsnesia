@@ -23,7 +23,15 @@ class PembelianService(
         var totalHarga = 0
         val pembelianItems = mutableListOf<PembelianEventResponse>()
 
-        // **Cek apakah semua event memiliki kuota yang cukup**
+        val pembelian = pembelianRepository.save(
+            Pembelian(
+                pelanggan = pelanggan,
+                tanggalPembelian = tanggalPembelian,
+                totalPembelian = 0, // Total dihitung setelah semua tiket dimasukkan
+                status = "Pending" // ✅ Status tetap "Pending" setelah pembelian
+            )
+        )
+
         for (item in request.items) {
             val event = eventRepository.findById(item.idEvent).orElseThrow {
                 ResponseStatusException(HttpStatus.NOT_FOUND, "Event dengan ID ${item.idEvent} tidak ditemukan")
@@ -35,23 +43,10 @@ class PembelianService(
                     "Kuota event '${event.namaEvent}' tidak mencukupi! (Tersisa: ${event.kuota})"
                 )
             }
-        }
 
-        // **Simpan pembelian tanpa mengurangi kuota**
-        val pembelian = pembelianRepository.save(
-            Pembelian(
-                pelanggan = pelanggan,
-                tanggalPembelian = tanggalPembelian,
-                totalPembelian = 0, // Total harga dihitung ulang saat checkout
-                status = "Pending"
-            )
-        )
-
-        // **Simpan detail pembelian ke pembelian_event tanpa mengurangi kuota**
-        for (item in request.items) {
-            val event = eventRepository.findById(item.idEvent).orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Event tidak ditemukan")
-            }
+            // ✅ Kuota dikurangi saat pembelian langsung
+            event.kuota -= item.jumlah
+            eventRepository.save(event) // Simpan perubahan kuota
 
             val subTotal = item.jumlah * event.hargaEvent
             totalHarga += subTotal
@@ -77,18 +72,19 @@ class PembelianService(
             )
         }
 
-        // **Update total pembelian**
+        // ✅ Update total pembelian setelah semua tiket masuk
         pembelian.totalPembelian = totalHarga
         pembelianRepository.save(pembelian)
 
         return PembelianResponse(
             idPembelian = pembelian.idPembelian ?: 0,
             totalPembelian = pembelian.totalPembelian,
-            status = pembelian.status,
+            status = pembelian.status, // ✅ Status tetap "Pending"
             tanggalPembelian = pembelian.tanggalPembelian.toString(),
             items = pembelianItems
         )
     }
+
 
 
 //    fun getRiwayatPembelian(pelanggan: Pelanggan): List<PembelianResponse> {

@@ -27,7 +27,7 @@ class EventService(private val eventRepository: EventRepository) {
     // 🔥 Konversi `Event` ke `EventListResponse`
     private fun Event.toListResponse(): EventListResponse {
         return EventListResponse(
-            idEvent = this.idEvent ?: 0L,
+            idEvent = (this.idEvent ?: 0L).toInt(),
             namaEvent = this.namaEvent,
             hargaEvent = this.hargaEvent,
             jadwalEvent = this.jadwalEvent.toString(),
@@ -42,7 +42,7 @@ class EventService(private val eventRepository: EventRepository) {
     // 🔥 Konversi `Event` ke `EventDetailResponse`
     private fun Event.toDetailResponse(): EventDetailResponse {
         return EventDetailResponse(
-            idEvent = this.idEvent ?: 0L,
+            idEvent = (this.idEvent ?: 0L).toInt(),
             namaEvent = this.namaEvent,
             hargaEvent = this.hargaEvent,
             jadwalEvent = this.jadwalEvent.toString(),

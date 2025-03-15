@@ -2,7 +2,7 @@ package com.example.kidsnesia.model
 
 //response yang dikeluarkan ketika mengakses API list event
 data class EventListResponse(
-    val idEvent: Long,
+    val idEvent: Int,
     val namaEvent: String,
     val jadwalEvent: String,
     val jadwalEventDay: String,
@@ -13,7 +13,7 @@ data class EventListResponse(
     val hargaEvent: Int
 ) {
     fun getFullImageUrl(): String {
-        return "http://192.168.1.33:8080/$fotoEvent" // Menghasilkan URL lengkap
+        return "http://192.168.1.57:8080/$fotoEvent" // Menghasilkan URL lengkap
     }
 }
 
