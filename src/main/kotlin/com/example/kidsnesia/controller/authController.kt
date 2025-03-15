@@ -23,18 +23,19 @@ class AuthController(private val authService: AuthService) {
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<WebResponse<TokenResponse>> {
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<WebResponse<String>> {
         return try {
-            val tokenResponse = authService.login(request)
+            authService.login(request) // Tetap panggil login agar tetap menjalankan proses autentikasi
             logger.info("📝 Login pelanggan: ${request.email}")
 
-            ResponseEntity.ok(WebResponse(message = tokenResponse, status = "sukses"))
+            ResponseEntity.ok(WebResponse(message = "Login berhasil", status = "sukses"))
         } catch (e: ResponseStatusException) {
             logger.error("❌ Login gagal: ${e.reason}")
 
             ResponseEntity
                 .status(e.statusCode)
-                .body(WebResponse(message = null, status = e.reason))
+                .body(WebResponse(message = "Login gagal", status = e.reason))
         }
     }
+
 }
