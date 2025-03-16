@@ -6,7 +6,7 @@ data class ProdukResponse(
     private val fotoProduk: String // Gunakan variabel privat untuk menyimpan path asli
 ) {
     val FotoProduk: String
-        get() = "http://192.168.1.57:8080/$fotoProduk" // Otomatis menambahkan prefix URL
+        get() = "http://192.168.1.16:8080/$fotoProduk" // Otomatis menambahkan prefix URL
 }
 
 

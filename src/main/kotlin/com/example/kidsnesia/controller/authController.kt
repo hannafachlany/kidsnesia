@@ -28,8 +28,8 @@ class AuthController(private val authService: AuthService) {
                 "message" to "success",
                 "loginResult" to mapOf(
                     "email" to tokenResponse.email,
-                    "namaPelanggan" to tokenResponse.namaPelanggan, // Gunakan `namaPelanggan`
-                    "token" to tokenResponse.token
+                    "namaPelanggan" to tokenResponse.namaPelanggan,
+                    "token" to "Bearer ${tokenResponse.token}"  // Tambahkan prefix Bearer di respons
                 )
             )
 

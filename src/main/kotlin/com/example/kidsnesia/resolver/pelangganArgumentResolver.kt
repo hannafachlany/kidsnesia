@@ -31,8 +31,10 @@ class PelangganArgumentResolver(
         binderFactory: WebDataBinderFactory?
     ): Any {
         val request = webRequest.nativeRequest as HttpServletRequest
-        val token = request.getHeader("X-API-TOKEN")
+        val authHeader = request.getHeader("Authorization")
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Belum Login")
+
+        val token = authHeader.removePrefix("Bearer ")
 
         logger.info("🔍 Mencari pelanggan dengan token: $token")
 

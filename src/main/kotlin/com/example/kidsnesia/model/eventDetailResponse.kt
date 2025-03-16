@@ -12,7 +12,7 @@ data class EventDetailResponse(
     val hargaEvent: Int
 ) {
     fun getFullImageUrl(): String {
-        return "http://192.168.1.57:8080/$fotoEvent"
+        return "http://192.168.1.16:8080/$fotoEvent"
     }
 }
 
